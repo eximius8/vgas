@@ -3,3 +3,4 @@ uvicorn[standard]
 httpx
 pytest
 pytest-asyncio
+sqlmodel==0.0.25
