@@ -22,7 +22,7 @@ class Job(SQLModel, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     site_id: str = Field(nullable=False)
-    for_date: date = Field(nullable=False)
+    for_date: date = Field(nullable=False, alias="date")
     status: JobStatus = Field(
         Enum(JobStatus, name="job_status", native_enum=False),
         nullable=False,
@@ -41,3 +41,13 @@ class Job(SQLModel, table=True):
     deliveries: list["Delivery"] = Relationship(
         back_populates="job", cascade_delete=True, 
     )
+
+
+class JobCreate(SQLModel):
+    site_id: str = Field(alias="siteId")
+    for_date: date = Field(alias="date")
+
+
+class JobResponse(SQLModel):
+    id: uuid.UUID = Field(alias="jobId")
+    status: JobStatus
