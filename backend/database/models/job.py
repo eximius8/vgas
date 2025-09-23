@@ -6,6 +6,7 @@ import enum
 from datetime import datetime, date
 
 from sqlmodel import Field, Relationship, SQLModel, DateTime, Enum
+from sqlalchemy import func
 
 if TYPE_CHECKING:
     from .delivery import Delivery
@@ -18,23 +19,33 @@ class JobStatus(str, enum.Enum):
     FAILED = "failed"
 
 
-class Job(SQLModel, table=True):   
+class Job(SQLModel, table=True):
+    __tablename__ = "jobs"
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     site_id: str = Field(nullable=False)
     for_date: date = Field(nullable=False, alias="date")
-    status: JobStatus = Field(
-        Enum(JobStatus, name="job_status", native_enum=False),
+    status: JobStatus = Field(        
         nullable=False,
         default=JobStatus.CREATED,
+        sa_type=Enum(JobStatus, native_enum=False)
     )
     created_at: datetime = Field(
-        DateTime(timezone=True), default=datetime.now(), nullable=False
+        default_factory=datetime.now,
+        nullable=False,
+        sa_type=DateTime(timezone=True)
     )
     updated_at: datetime = Field(
-        DateTime(timezone=True), default=datetime.now(), onupdate=datetime.now(), nullable=False
-    )    
+        default_factory=datetime.now,        
+        nullable=False,
+        sa_type=DateTime(timezone=True),
+        sa_column_kwargs={
+            'onupdate': func.now(),
+            'server_default': func.now(),
+        },
+    )
     error: str | None = Field(
+        default=None,
         nullable=True
     )
 
@@ -44,10 +55,11 @@ class Job(SQLModel, table=True):
 
 
 class JobCreate(SQLModel):
-    site_id: str = Field(alias="siteId")
-    for_date: date = Field(alias="date")
+    site_id: str = Field(alias="siteId", schema_extra={"validation_alias": "siteId"})
+    for_date: date = Field(alias="date", schema_extra={"validation_alias": "date"})
+
 
 
 class JobResponse(SQLModel):
-    id: uuid.UUID = Field(alias="jobId")
+    id: uuid.UUID = Field(alias="jobId", schema_extra={"serialization_alias": "jobId"})
     status: JobStatus

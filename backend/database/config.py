@@ -10,4 +10,6 @@ def init_db(session: Session) -> None:
 
     SQLModel.metadata.create_all(engine)
 
-    
+
+with Session(engine) as session:
+    init_db(session)
