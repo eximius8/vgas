@@ -1,3 +1,3 @@
 import os
 
-SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", default="sqlite:///./test.db")
+SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", default="sqlite:///./db.sqlite3")
