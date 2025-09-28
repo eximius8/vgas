@@ -33,7 +33,10 @@ class Job(SQLModel, table=True):
     created_at: datetime = Field(
         default_factory=datetime.now,
         nullable=False,
-        sa_type=DateTime(timezone=True)
+        sa_type=DateTime(timezone=True),
+        sa_column_kwargs={            
+            'server_default': func.now(),
+        },        
     )
     updated_at: datetime = Field(
         default_factory=datetime.now,        
@@ -53,6 +56,13 @@ class Job(SQLModel, table=True):
         back_populates="job", cascade_delete=True, 
     )
 
+    @property
+    def input(self) -> dict:
+        return {
+            "siteId": self.site_id,
+            "date": self.for_date.isoformat()
+        }
+
 
 class JobCreate(SQLModel):
     site_id: str = Field(alias="siteId", schema_extra={"validation_alias": "siteId"})
@@ -63,3 +73,13 @@ class JobCreate(SQLModel):
 class JobResponse(SQLModel):
     id: uuid.UUID = Field(alias="jobId", schema_extra={"serialization_alias": "jobId"})
     status: JobStatus
+
+
+class JobStatusResponse(SQLModel):
+    id: uuid.UUID = Field(alias="jobId", schema_extra={"serialization_alias": "jobId"})
+    status: JobStatus
+    created_at: datetime = Field(alias="createdAt", schema_extra={"serialization_alias": "createdAt"})
+    updated_at: datetime = Field(alias="updatedAt", schema_extra={"serialization_alias": "updatedAt"})
+    input: dict
+    stats: dict[str, int] = {}
+    error: str | None = None

@@ -4,6 +4,7 @@ import logging
 import httpx
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from backend.routes import deliveries
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -41,6 +42,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="VESTIGAS Backend Challenge", lifespan=lifespan, root_path="/backend")
 
+app.include_router(deliveries.router)
 
 @app.get("/")
 def root():
