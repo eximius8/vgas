@@ -6,7 +6,7 @@ import enum
 from datetime import datetime, date
 
 from sqlmodel import Field, Relationship, SQLModel, DateTime, Enum
-from sqlalchemy import func
+from sqlalchemy import func, JSON
 
 if TYPE_CHECKING:
     from .delivery import Delivery
@@ -56,6 +56,12 @@ class Job(SQLModel, table=True):
         back_populates="job", cascade_delete=True, 
     )
 
+    stats: dict = Field(
+        default_factory=dict,  # Use default_factory instead of default
+        nullable=False,
+        sa_type=JSON  # Add sa_type parameter
+    )
+
     @property
     def input(self) -> dict:
         return {
@@ -69,7 +75,6 @@ class JobCreate(SQLModel):
     for_date: date = Field(alias="date", schema_extra={"validation_alias": "date"})
 
 
-
 class JobResponse(SQLModel):
     id: uuid.UUID = Field(alias="jobId", schema_extra={"serialization_alias": "jobId"})
     status: JobStatus
@@ -81,5 +86,5 @@ class JobStatusResponse(SQLModel):
     created_at: datetime = Field(alias="createdAt", schema_extra={"serialization_alias": "createdAt"})
     updated_at: datetime = Field(alias="updatedAt", schema_extra={"serialization_alias": "updatedAt"})
     input: dict
-    stats: dict[str, int] = {}
+    stats: dict
     error: str | None = None

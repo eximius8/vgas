@@ -1,0 +1,7 @@
+{
+  "name": "Vestigas homework",
+  "dockerComposeFile": "./docker-compose-devcontainer.yml",
+  "service": "backend",
+  "workspaceFolder": "backend",
+  "shutdownAction": "stopCompose"
+}

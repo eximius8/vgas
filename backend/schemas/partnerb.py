@@ -25,7 +25,7 @@ class PartnerBDelivery(BaseModel):
     def status(self) -> str:
         status_map = {
             "OK": DeliveryStatus.DELIVERED.value,
-            "failed": DeliveryStatus.CANCELLED.value,
+            "FAILED": DeliveryStatus.CANCELLED.value,
         }
         return status_map.get(self.statusCode, DeliveryStatus.PENDING.value)
 

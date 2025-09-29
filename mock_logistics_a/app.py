@@ -5,7 +5,7 @@ from typing import List
 
 app = FastAPI(title="Mock Partner A", root_path="/mock-a")
 
-with open("/srv/data.json") as f:
+with open("mock_logistics_a/data.json") as f:
     data = json.load(f)
 
 class LogisticsAResponse(BaseModel):

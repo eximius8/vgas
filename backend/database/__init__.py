@@ -1,10 +1,12 @@
-from .models.delivery import Delivery
+from .models.delivery import Delivery, DeliveryResponse, DeliveriesByJobResponse
 from .models.job import Job, JobCreate, JobResponse, JobStatusResponse, JobStatus
 from .config import engine, init_db
 
 
 __all__ = [
     "Delivery",
+    "DeliveryResponse",
+    "DeliveriesByJobResponse",
     "Job",
     "JobCreate",
     "JobResponse",

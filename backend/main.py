@@ -5,11 +5,10 @@ import httpx
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from backend.routes import deliveries
+from backend.settings import LOGISTICS_A_URL, LOGISTICS_B_URL
 
 logger = logging.getLogger("uvicorn.error")
 
-LOGISTICS_A_URL = os.getenv("LOGISTICS_A_URL", "http://mock_a:8000/api/logistics-a")
-LOGISTICS_B_URL = os.getenv("LOGISTICS_B_URL", "http://mock_b:8000/api/logistics-b")
 
 
 @asynccontextmanager

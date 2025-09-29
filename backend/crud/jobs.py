@@ -34,3 +34,17 @@ def update_job_status(*, session: Session, job_id: uuid.UUID, status: JobStatus)
     session.commit()
     session.refresh(session_job)
     return session_job
+
+
+def update_job_stats(*, session: Session, job_id: uuid.UUID, stats: dict) -> Job | None:
+    
+    session_job = get_job_by_id(session=session, job_id=job_id)
+    if not session_job:
+        logger.error(f"Job with id {job_id} not found.")
+        return None
+
+    session_job.stats = stats
+    session.add(session_job)
+    session.commit()
+    session.refresh(session_job)
+    return session_job

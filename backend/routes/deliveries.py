@@ -1,10 +1,11 @@
 from uuid import UUID
 from typing import Any
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from backend.database import JobResponse, JobCreate, JobStatusResponse
+from backend.database import JobResponse, JobCreate, JobStatusResponse, DeliveryResponse, DeliveriesByJobResponse
 from backend.deps import SessionDep
 import backend.crud.jobs as jobscrud
-from backend.backgroundtasks.fetchpartner import process_job
+import backend.crud.deliveries as deliveriescrud
+from backend.backgroundtasks.processjob import process_job
 
 router = APIRouter(prefix="/backend/deliveries", tags=["deliveries"])
 
@@ -34,3 +35,22 @@ def get_job(*, session: SessionDep, job_id: UUID) -> Any:
         raise HTTPException(status_code=404, detail="Job not found")
     job_status_response = JobStatusResponse.model_validate(job)    
     return job_status_response
+
+
+@router.get(
+    "/jobs/{job_id}/results", response_model=DeliveriesByJobResponse
+)
+def get_job_results(*, session: SessionDep, job_id: UUID) -> Any:
+    """
+    Get job status.
+    """
+    deliveries = deliveriescrud.get_deliveries_by_job_id(session=session, job_id=job_id)
+
+    response = DeliveriesByJobResponse(
+        job_id=job_id,
+        items=[DeliveryResponse.model_validate(delivery) for delivery in deliveries],
+        total=len(deliveries),
+        limit=len(deliveries),
+        offset=0
+    )
+    return response

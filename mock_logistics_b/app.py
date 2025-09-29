@@ -6,7 +6,7 @@ from typing import List
 
 app = FastAPI(title="Mock Partner B", root_path="/mock-b")
 
-with open("/srv/data.json") as f:
+with open("mock_logistics_b/data.json") as f:
     data = json.load(f)
 
 class Receiver(BaseModel):

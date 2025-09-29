@@ -15,11 +15,6 @@ class DeliveryStatus(str, enum.Enum):
     PENDING = "pending"
 
 
-class Source(str, enum.Enum):
-    PARTNER_A = "partner_a"
-    PARTNER_B = "partner_b"
-
-
 class Delivery(SQLModel, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -34,17 +29,17 @@ class Delivery(SQLModel, table=True):
         nullable=False
     )
     signed: bool = Field(nullable=False)
-    site_id: str = Field(nullable=False)  # repeat for filtering
 
-    source: Source = Field(
-        Enum(Source, name="source_enum", native_enum=False),
-        nullable=False
-    )    
+    source: str = Field(nullable=False)
     job_id: uuid.UUID = Field(
         UUID(as_uuid=True), foreign_key="jobs.id", nullable=False, ondelete="CASCADE"
     )
 
     job: Job = Relationship(back_populates="deliveries")
+
+    @property
+    def site_id(self) -> str:
+        return self.job.site_id
 
     @property
     def delivery_score(self) -> float:
@@ -59,13 +54,21 @@ class Delivery(SQLModel, table=True):
         return signed * is_morning_delivery
 
 
-class DeliveryResponse(SQLModel):    
+class DeliveryResponse(SQLModel):
+
     ext_id: str = Field(alias="id", schema_extra={"serialization_alias": "id"})
     supplier: str
     delivered_at: datetime = Field(alias="deliveredAt", schema_extra={"serialization_alias": "deliveredAt"})
     status: DeliveryStatus
     signed: bool
     site_id: str = Field(alias="siteId", schema_extra={"serialization_alias": "siteId"})
-    source: Source
+    source: str
     delivery_score: float = Field(alias="deliveryScore", schema_extra={"serialization_alias": "deliveryScore"})
 
+
+class DeliveriesByJobResponse(SQLModel):
+    job_id: uuid.UUID = Field(alias="jobId", schema_extra={"serialization_alias": "jobId"})
+    items: list[DeliveryResponse] = Field(alias="deliveries")
+    total: int
+    limit: int
+    offset: int
