@@ -1,23 +1,17 @@
 """Model for deliveries"""
 
 import uuid
-import enum
+
 from datetime import datetime
 
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import case, extract
 
-
 from pydantic import ConfigDict
 from sqlmodel import Field, Relationship, SQLModel, DateTime, Enum, UUID
 
+from backend.enums import DeliveryStatus
 from .job import Job
-
-
-class DeliveryStatus(str, enum.Enum):
-    DELIVERED = "delivered"
-    CANCELLED = "cancelled"
-    PENDING = "pending"
 
 
 class Delivery(SQLModel, table=True):
@@ -73,23 +67,3 @@ class Delivery(SQLModel, table=True):
             else_=1.0
         )        
         return signed_score * morning_score
-
-
-class DeliveryResponse(SQLModel):
-
-    ext_id: str = Field(alias="id", schema_extra={"serialization_alias": "id"})
-    supplier: str
-    delivered_at: datetime = Field(alias="deliveredAt", schema_extra={"serialization_alias": "deliveredAt"})
-    status: DeliveryStatus
-    signed: bool
-    site_id: str = Field(alias="siteId", schema_extra={"serialization_alias": "siteId"})
-    source: str
-    delivery_score: float = Field(alias="deliveryScore", schema_extra={"serialization_alias": "deliveryScore"})
-
-
-class DeliveriesByJobResponse(SQLModel):
-    job_id: uuid.UUID = Field(alias="jobId", schema_extra={"serialization_alias": "jobId"})
-    items: list[DeliveryResponse] = Field(alias="deliveries")
-    total: int
-    limit: int
-    offset: int

@@ -2,21 +2,18 @@
 
 from typing import TYPE_CHECKING
 import uuid
-import enum
+
 from datetime import datetime, date
 
 from sqlmodel import Field, Relationship, SQLModel, DateTime, Enum
 from sqlalchemy import func, JSON
 
+from backend.enums import JobStatus
+
 if TYPE_CHECKING:
     from .delivery import Delivery
 
 
-class JobStatus(str, enum.Enum):
-    CREATED = "created"
-    PROCESSING = "processing"
-    FINISHED = "finished"
-    FAILED = "failed"
 
 
 class Job(SQLModel, table=True):
