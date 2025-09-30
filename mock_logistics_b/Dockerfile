@@ -6,5 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 COPY . .
+RUN chmod a+x start.sh
 
 CMD ["./start.sh"]
