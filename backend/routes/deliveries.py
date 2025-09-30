@@ -17,9 +17,12 @@ def create_job(*, session: SessionDep, job_in: JobCreate, background_tasks: Back
     """
     Create new job.
     """
-    job = jobscrud.create_job(session=session, job_create=job_in)
-    job_response = JobResponse.model_validate(job)
-    background_tasks.add_task(process_job, job.id, session)
+    job = jobscrud.get_job_by_site_id_date(
+        session=session, site_id=job_in.site_id, for_date=job_in.for_date)
+    if job is None:
+        job = jobscrud.create_job(session=session, job_create=job_in)
+        background_tasks.add_task(process_job, job.id, session)
+    job_response = JobResponse.model_validate(job)    
     return job_response
 
 
@@ -42,7 +45,7 @@ def get_job(*, session: SessionDep, job_id: UUID) -> Any:
 )
 def get_job_results(*, session: SessionDep, job_id: UUID) -> Any:
     """
-    Get job status.
+    Get job results.
     """
     deliveries = deliveriescrud.get_deliveries_by_job_id(session=session, job_id=job_id)
 
