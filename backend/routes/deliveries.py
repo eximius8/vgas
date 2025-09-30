@@ -7,7 +7,7 @@ import backend.crud.jobs as jobscrud
 import backend.crud.deliveries as deliveriescrud
 from backend.backgroundtasks.processjob import process_job
 
-router = APIRouter(prefix="/backend/deliveries", tags=["deliveries"])
+router = APIRouter(prefix="/deliveries", tags=["deliveries"])
 
 
 @router.post(
