@@ -4,6 +4,11 @@ import uuid
 import enum
 from datetime import datetime
 
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import case, extract
+
+
+from pydantic import ConfigDict
 from sqlmodel import Field, Relationship, SQLModel, DateTime, Enum, UUID
 
 from .job import Job
@@ -16,6 +21,8 @@ class DeliveryStatus(str, enum.Enum):
 
 
 class Delivery(SQLModel, table=True):
+
+    model_config = ConfigDict(ignored_types=(hybrid_property,))
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     # unified fields
@@ -41,7 +48,7 @@ class Delivery(SQLModel, table=True):
     def site_id(self) -> str:
         return self.job.site_id
 
-    @property
+    @hybrid_property
     def delivery_score(self) -> float:
         if self.signed:
             signed = 1.0
@@ -52,6 +59,20 @@ class Delivery(SQLModel, table=True):
         else:
             is_morning_delivery = 1.0 
         return signed * is_morning_delivery
+
+    @delivery_score.expression
+    def delivery_score(cls):
+        signed_score = case(
+            (cls.signed == True, 1.0),
+            else_=0.3
+        )
+        
+        hour = extract('hour', cls.delivered_at)
+        morning_score = case(
+            ((hour >= 5) & (hour < 11), 1.2),
+            else_=1.0
+        )        
+        return signed_score * morning_score
 
 
 class DeliveryResponse(SQLModel):

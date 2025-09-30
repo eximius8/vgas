@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import Any
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Response, status
 from backend.database import JobResponse, JobCreate, JobStatusResponse, DeliveryResponse, DeliveriesByJobResponse
 from backend.deps import SessionDep
 import backend.crud.jobs as jobscrud
@@ -13,7 +13,11 @@ router = APIRouter(prefix="/deliveries", tags=["deliveries"])
 @router.post(
     "/fetch", response_model=JobResponse
 )
-def create_job(*, session: SessionDep, job_in: JobCreate, background_tasks: BackgroundTasks) -> Any:
+def create_job(*, 
+               session: SessionDep, 
+               job_in: JobCreate, 
+               background_tasks: BackgroundTasks,
+               response: Response) -> Any:
     """
     Create new job.
     """
@@ -22,6 +26,8 @@ def create_job(*, session: SessionDep, job_in: JobCreate, background_tasks: Back
     if job is None:
         job = jobscrud.create_job(session=session, job_create=job_in)
         background_tasks.add_task(process_job, job.id, session)
+    else:
+        response.status_code = status.HTTP_202_ACCEPTED
     job_response = JobResponse.model_validate(job)    
     return job_response
 
