@@ -1,8 +1,8 @@
 
 import uuid
-from backend.database import JobStatus
+from backend.enums import JobStatusEnum
 from backend.deps import SessionDep
-from backend.crud import jobs as jobscrud
+from backend.core.crud import jobs as jobscrud
 
 from .fetchpartners import fetch_partners
 from .processpartnerdata import process_deliveries
@@ -15,7 +15,7 @@ async def process_job(job_id: uuid.UUID, session: SessionDep) -> None:
     Here, we just log the action and return True to indicate success.
     """
     jobscrud.update_job_status(
-        session=session, job_id=job_id, status=JobStatus.PROCESSING)
+        session=session, job_id=job_id, status=JobStatusEnum.PROCESSING)
 
     partner_a_results, partner_b_results = await fetch_partners()
 
@@ -24,10 +24,10 @@ async def process_job(job_id: uuid.UUID, session: SessionDep) -> None:
         session=session, job_id=job_id, stats=stats)
     if stats.get('stored', 0) > 0:
         jobscrud.update_job_status(
-            session=session, job_id=job_id, status=JobStatus.FINISHED)
+            session=session, job_id=job_id, status=JobStatusEnum.FINISHED)
     else:
         jobscrud.update_job_status(
-            session=session, job_id=job_id, status=JobStatus.FAILED)
+            session=session, job_id=job_id, status=JobStatusEnum.FAILED)
 
 
 

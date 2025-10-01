@@ -4,7 +4,7 @@ import logging
 import httpx
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from backend.routes import deliveriesrouter
+from backend.api.routes import deliveriesrouter
 from backend.settings import LOGISTICS_A_URL, LOGISTICS_B_URL
 
 logger = logging.getLogger("uvicorn.error")

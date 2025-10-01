@@ -3,13 +3,16 @@ from datetime import date
 import logging
 from sqlmodel import Session, select
 
-from backend.database import Job, JobCreate, JobStatus
+from backend.enums import JobStatusEnum
+from backend.core.database import Job
+from backend.api.schemas.job import JobCreateSerializer
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def create_job(*, session: Session, job_create: JobCreate) -> Job:
+def create_job(*, session: Session, job_create: JobCreateSerializer) -> Job:
     db_obj = Job.model_validate(job_create)
     session.add(db_obj)
     session.commit()
@@ -26,11 +29,11 @@ def get_job_by_id(*, session: Session, job_id: uuid.UUID) -> Job | None:
 def get_job_by_site_id_date(*, session: Session, site_id: str, for_date: date) -> Job | None:
     statement = select(Job).where(Job.for_date == for_date).where(Job.site_id == site_id)
     session_job = session.exec(statement).first()
-    if session_job and session_job.status in (JobStatus.CREATED.value, JobStatus.PROCESSING.value):
+    if session_job and session_job.status in (JobStatusEnum.CREATED.value, JobStatusEnum.PROCESSING.value):
         return session_job
 
 
-def update_job_status(*, session: Session, job_id: uuid.UUID, status: JobStatus) -> Job | None:
+def update_job_status(*, session: Session, job_id: uuid.UUID, status: JobStatusEnum) -> Job | None:
     
     session_job = get_job_by_id(session=session, job_id=job_id)
     if not session_job:

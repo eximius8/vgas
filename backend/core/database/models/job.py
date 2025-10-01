@@ -8,7 +8,7 @@ from datetime import datetime, date
 from sqlmodel import Field, Relationship, SQLModel, DateTime, Enum
 from sqlalchemy import func, JSON
 
-from backend.enums import JobStatus
+from backend.enums import JobStatusEnum
 
 if TYPE_CHECKING:
     from .delivery import Delivery
@@ -22,10 +22,10 @@ class Job(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     site_id: str = Field(nullable=False)
     for_date: date = Field(nullable=False, alias="date")
-    status: JobStatus = Field(        
+    status: JobStatusEnum = Field(        
         nullable=False,
-        default=JobStatus.CREATED,
-        sa_type=Enum(JobStatus, native_enum=False)
+        default=JobStatusEnum.CREATED,
+        sa_type=Enum(JobStatusEnum, native_enum=False)
     )
     created_at: datetime = Field(
         default_factory=datetime.now,
@@ -66,22 +66,3 @@ class Job(SQLModel, table=True):
             "date": self.for_date.isoformat()
         }
 
-
-class JobCreate(SQLModel):
-    site_id: str = Field(alias="siteId", schema_extra={"validation_alias": "siteId"})
-    for_date: date = Field(alias="date", schema_extra={"validation_alias": "date"})
-
-
-class JobResponse(SQLModel):
-    id: uuid.UUID = Field(alias="jobId", schema_extra={"serialization_alias": "jobId"})
-    status: JobStatus
-
-
-class JobStatusResponse(SQLModel):
-    id: uuid.UUID = Field(alias="jobId", schema_extra={"serialization_alias": "jobId"})
-    status: JobStatus
-    created_at: datetime = Field(alias="createdAt", schema_extra={"serialization_alias": "createdAt"})
-    updated_at: datetime = Field(alias="updatedAt", schema_extra={"serialization_alias": "updatedAt"})
-    input: dict
-    stats: dict
-    error: str | None = None

@@ -1,12 +1,12 @@
 import pytest
-from backend.schemas.partnera import PartnerADelivery
-from backend.schemas.partnerb import PartnerBDelivery
+from backend.core.backgroundtasks.serializers import DeliveryPartnerASerializer, DeliveryPartnerBSerializer
+
 
 
 
 def test_partner_a_delivery_validation_positive(partner_a_correct_response):
     for item in partner_a_correct_response:
-        delivery = PartnerADelivery(**item)
+        delivery = DeliveryPartnerASerializer(**item)
         assert delivery.deliveryId == item["deliveryId"]
         assert delivery.supplier == item["supplier"]
         assert delivery.timestamp.isoformat().replace('+00:00', 'Z') == item["timestamp"]
@@ -18,12 +18,12 @@ def test_partner_a_delivery_validation_positive(partner_a_correct_response):
 def test_partner_a_delivery_validation_negative(partner_a_wrong_response):
     for item in partner_a_wrong_response:
         with pytest.raises(Exception):
-            PartnerADelivery(**item)
+            DeliveryPartnerASerializer(**item)
 
 
 def test_partner_b_delivery_validation_positive(partner_b_correct_response):
     for item in partner_b_correct_response:
-        delivery = PartnerBDelivery(**item)
+        delivery = DeliveryPartnerBSerializer(**item)
         assert delivery.id == item["id"]
         assert delivery.provider == item["provider"]
         assert delivery.deliveredAt.isoformat() == item["deliveredAt"]
@@ -34,4 +34,4 @@ def test_partner_b_delivery_validation_positive(partner_b_correct_response):
 def test_partner_b_delivery_validation_negative(partner_b_wrong_response):
     for item in partner_b_wrong_response:
         with pytest.raises(Exception):
-            PartnerBDelivery(**item)
+            DeliveryPartnerBSerializer(**item)

@@ -1,12 +1,13 @@
 import uuid
 import logging
+from typing import List
 from sqlmodel import Session, select
 from sqlalchemy import func, desc, asc
 
-from backend.database import Delivery
-from backend.schemas import PartnerADelivery, PartnerBDelivery
-from backend.filters.deliveryfilter import DeliveryFilters
-from backend.enums import SortByItems
+from backend.core.database import Delivery
+from backend.core.backgroundtasks.serializers import DeliveryPartnerASerializer, DeliveryPartnerBSerializer
+from backend.api.filters import DeliveryFilter
+from backend.enums import SortByItemsEnum
 
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 def create_deliveries_bulk(*, 
                          session: Session,
                          job_id: uuid.UUID,
-                         deliveries: list[PartnerADelivery | PartnerBDelivery]) -> list[Delivery]:
+                         deliveries: List[DeliveryPartnerASerializer | DeliveryPartnerBSerializer]) -> List[Delivery]:
     db_objs = []
     for delivery in deliveries:
         # Convert to dict and add job_id
@@ -38,7 +39,7 @@ def get_deliveries(
         *, 
         session: Session,
         job_id: uuid.UUID | None = None,
-        filters: DeliveryFilters,
+        filters: DeliveryFilter,
         ) -> dict:
     statement = select(Delivery)
     if job_id:
@@ -60,16 +61,16 @@ def get_deliveries(
     total = session.exec(count_statement).one()
 
     sort_mapping = {
-        SortByItems.DELIVERED_AT_ASC: asc(Delivery.delivered_at),
-        SortByItems.DELIVERED_AT_DESC: desc(Delivery.delivered_at),
-        SortByItems.SUPPLIER_ASC: asc(Delivery.supplier),
-        SortByItems.SUPPLIER_DESC: desc(Delivery.supplier),
-        SortByItems.STATUS_ASC: asc(Delivery.status),
-        SortByItems.STATUS_DESC: desc(Delivery.status),
-        SortByItems.SOURCE_ASC: asc(Delivery.source),
-        SortByItems.SOURCE_DESC: desc(Delivery.source),
-        SortByItems.DELIVERY_SCORE_ASC: asc(Delivery.delivery_score),
-        SortByItems.DELIVERY_SCORE_DESC: desc(Delivery.delivery_score),
+        SortByItemsEnum.DELIVERED_AT_ASC: asc(Delivery.delivered_at),
+        SortByItemsEnum.DELIVERED_AT_DESC: desc(Delivery.delivered_at),
+        SortByItemsEnum.SUPPLIER_ASC: asc(Delivery.supplier),
+        SortByItemsEnum.SUPPLIER_DESC: desc(Delivery.supplier),
+        SortByItemsEnum.STATUS_ASC: asc(Delivery.status),
+        SortByItemsEnum.STATUS_DESC: desc(Delivery.status),
+        SortByItemsEnum.SOURCE_ASC: asc(Delivery.source),
+        SortByItemsEnum.SOURCE_DESC: desc(Delivery.source),
+        SortByItemsEnum.DELIVERY_SCORE_ASC: asc(Delivery.delivery_score),
+        SortByItemsEnum.DELIVERY_SCORE_DESC: desc(Delivery.delivery_score),
     }
     
     if filters.sort_by:

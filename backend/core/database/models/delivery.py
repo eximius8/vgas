@@ -10,7 +10,7 @@ from sqlalchemy import case, extract
 from pydantic import ConfigDict
 from sqlmodel import Field, Relationship, SQLModel, DateTime, Enum, UUID
 
-from backend.enums import DeliveryStatus
+from backend.enums import DeliveryStatusEnum
 from .job import Job
 
 
@@ -25,8 +25,8 @@ class Delivery(SQLModel, table=True):
     delivered_at: datetime = Field(
         DateTime(timezone=True), nullable=False
     )  # store in UTC
-    status: DeliveryStatus = Field(
-        Enum(DeliveryStatus, name="delivery_status", native_enum=False),
+    status: DeliveryStatusEnum = Field(
+        Enum(DeliveryStatusEnum, name="delivery_status", native_enum=False),
         nullable=False
     )
     signed: bool = Field(nullable=False)

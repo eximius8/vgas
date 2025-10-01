@@ -2,7 +2,12 @@ import pytest
 from sqlmodel import Session
 from httpx import AsyncClient, ASGITransport
 from backend.deps import get_db
-from backend.database import Job, JobCreate, JobStatus
+from backend.core.database import Job
+
+from backend.api.schemas import JobCreateSerializer
+
+from backend.enums import JobStatusEnum
+
 
 from backend.main import app
 
@@ -19,12 +24,12 @@ async def test_create_job(job_json):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('status', [JobStatus.PROCESSING.value, JobStatus.CREATED.value])
+@pytest.mark.parametrize('status', [JobStatusEnum.PROCESSING.value, JobStatusEnum.CREATED.value])
 async def test_not_create_job_with_same_data_processing_created(job_json, session: Session, status: str):
     def get_session_override():
         return session  
     app.dependency_overrides[get_db] = get_session_override
-    job_create = JobCreate(**job_json)
+    job_create = JobCreateSerializer(**job_json)
     job = Job.model_validate(job_create)
     job.status = status
     session.add(job)
@@ -37,12 +42,12 @@ async def test_not_create_job_with_same_data_processing_created(job_json, sessio
     assert data['jobId'] == str(job.id)
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('status', [JobStatus.FAILED.value, JobStatus.FINISHED.value])
+@pytest.mark.parametrize('status', [JobStatusEnum.FAILED.value, JobStatusEnum.FINISHED.value])
 async def test_create_job_with_same_data_failed_finished(job_json, session: Session, status: str):
     def get_session_override():
         return session  
     app.dependency_overrides[get_db] = get_session_override
-    job_create = JobCreate(**job_json)
+    job_create = JobCreateSerializer(**job_json)
     job = Job.model_validate(job_create)
     job.status = status
     session.add(job)

@@ -6,9 +6,10 @@ from backend.deps import SessionDep
 import logging
 
 
-from backend.crud import deliveries as deliveriescrud
-from backend.schemas.partnera import PartnerADelivery
-from backend.schemas.partnerb import PartnerBDelivery
+from backend.core.crud import deliveries as deliveriescrud
+
+from .serializers import DeliveryPartnerASerializer, DeliveryPartnerBSerializer
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 async def process_delivery(results: list | Exception, 
                             session: SessionDep, 
                             job_id: uuid.UUID,
-                            schema: PartnerADelivery | PartnerBDelivery) -> None:
+                            schema: DeliveryPartnerASerializer | DeliveryPartnerBSerializer) -> None:
     """Process fetched results."""
     if isinstance(results, Exception):        
         return {'error': results}
@@ -42,8 +43,8 @@ async def process_deliveries(partner_a_results: list,
                              session: SessionDep, 
                              job_id: uuid.UUID) -> None:
     """Process deliveries from both partners."""
-    stats_a = await process_delivery(partner_a_results, session, job_id, PartnerADelivery)
-    stats_b = await process_delivery(partner_b_results, session, job_id, PartnerBDelivery)
+    stats_a = await process_delivery(partner_a_results, session, job_id, DeliveryPartnerASerializer)
+    stats_b = await process_delivery(partner_b_results, session, job_id, DeliveryPartnerBSerializer)
     stored = stats_a.get('transformed', 0) + stats_b.get('transformed', 0)
     return {'partnerA': stats_a, 'partnerB': stats_b, 'stored': stored}
 

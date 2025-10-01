@@ -1,0 +1,1 @@
+"""REST API logic of the application."""

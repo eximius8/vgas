@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session
 
-from backend.database import engine
+from backend.core.database import engine
 
 
 def get_db() -> Generator[Session, None, None]:
