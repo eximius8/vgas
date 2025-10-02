@@ -26,4 +26,4 @@ jobs:
         python -m pip install -r ./backend/requirements.txt   
     - name: Test with pytest
       run: |
-        pytest
+        pytest backend
