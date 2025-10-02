@@ -1,16 +1,23 @@
 import logging
+from contextlib import asynccontextmanager
 
 import httpx
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
+from sqlmodel import Session
+
 from backend.api.routes import deliveriesrouter
 from backend.settings import LOGISTICS_A_URL, LOGISTICS_B_URL
+from backend.core.database import init_db, engine
 
 logger = logging.getLogger("uvicorn.error")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("Initializing database...")
+    with Session(engine) as session:
+        init_db(session)
+    logger.info("Database initialized successfully!")
     async with httpx.AsyncClient(timeout=5.0) as client:
         # Check Partner A
         try:
