@@ -1,130 +1,61 @@
+import os
 import pytest
+
+from fastapi.testclient import TestClient
+
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
+from backend.main import app
+from backend.deps import get_db
 
-@pytest.fixture
-def job_json():
-    return {
-        "siteId": "string",
-        "date": "2025-09-30"
-    }
+pytest_plugins = [
+    "fixtures.sample_database_data",
+    "fixtures.sample_data",
+]
 
-@pytest.fixture(name="session")  
-def session_fixture():  
+TEST_DATABASE_URL = "sqlite:///:memory:"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def set_test_env():
+    """Set test environment variables"""
+    os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+    os.environ["LOGISTICS_A_URL"] = "http://testserver-a/api/logistics-a"
+    os.environ["LOGISTICS_B_URL"] = "http://testserver-b/api/logistics-b"
+
+
+@pytest.fixture(scope="function")
+def db_engine():
+    """Create a test database engine"""
     engine = create_engine(
-        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+        TEST_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
-    SQLModel.metadata.create_all(engine)
-    with Session(engine) as session:
+    
+    SQLModel.metadata.create_all(engine)    
+    yield engine    
+    SQLModel.metadata.drop_all(engine)
+    engine.dispose()
+
+
+@pytest.fixture(scope="function")
+def db_session(db_engine):
+    """Create a test database session"""
+    with Session(db_engine) as session:
         yield session
 
 
-@pytest.fixture
-def partner_a_wrong_response():
-
-    return [{       
-        "supplier": "SupplierX",
-        "timestamp": "2025-08-01T07:34:00Z",
-        "status": "delivered",
-        "signedBy": "Martin Schulz"
-    },
-    {
-        "deliveryId": "DEL-002-A",
-        "supplier": "SupplierY",
-        "timestamp": "2025-08-01T12",
-        "status": "pending",       
-    },   
-    {
-        "deliveryId": "k",
-        "supplier": "SupplierZ",
-        "timestamp": "2025-08-01T09:15:00Z",
-        "status": "not ok",
-    }]
-
-
-
-@pytest.fixture
-def partner_a_correct_response():
-    return [{
-        "deliveryId": "DEL-001-A",
-        "supplier": "SupplierX",
-        "timestamp": "2025-08-01T07:34:00Z",
-        "status": "delivered",
-        "signedBy": "Martin Schulz",
-        "source": "Partner D"
-    },
-    {
-        "deliveryId": "DEL-002-A",
-        "supplier": "SupplierY",
-        "timestamp": "2025-08-01T12:00:00Z",
-        "status": "pending",       
-        "source": "Partner C"
-    },
-    {
-        "deliveryId": "k",
-        "supplier": "SupplierZ",
-        "timestamp": "2025-08-01T09:15:00Z",
-        "status": "cancelled",
-        "source": "Partner ADVCD"
-    }]
-
-@pytest.fixture
-def partner_b_wrong_response():
-
-    return [{
-        "id": "b-876543",
-        "provider": "SupplierY",
-        "deliveredAt": "2025-08-01T08:02:00+01:00",
-        "statusCode": "OK",
-        "receiver": {
-            "name": "M. Schulz",            
-            }
-    },
-    {
-        "id": "b-876543",
-        "provider": "SupplierY",
-        "deliveredAt": "2025-08-01T08",
-        "statusCode": "failed"
-    },
-    {
-        "id": "b",
-        "provider": "SuppliefasdfdasfasrY",
-        "deliveredAt": "2025-08-01T08:02:00+01:00",
-        "statusCode": "failed",
-        "receiver": {          
-            "signed": False
-            }
-    },]
-
-
-
-@pytest.fixture
-def partner_b_correct_response():
-    return [{
-        "id": "b-876543",
-        "provider": "SupplierY",
-        "deliveredAt": "2025-08-01T08:02:00+01:00",
-        "statusCode": "OK",
-        "receiver": {
-            "name": "M. Schulz",
-            "signed": True
-            }
-    },
-    {
-        "id": "b-876543",
-        "provider": "SupplierY",
-        "deliveredAt": "2025-08-01T08:02:00+01:00",
-        "statusCode": "failed"
-    },
-    {
-        "id": "b",
-        "provider": "SuppliefasdfdasfasrY",
-        "deliveredAt": "2025-08-01T08:02:00+01:00",
-        "statusCode": "failed",
-        "receiver": {
-            "name": "M. Schulz",
-            "signed": False
-            }
-    },]
-
+@pytest.fixture(scope="function")
+def client(db_session):
+    """Create a test client with overridden database dependency"""
+    def override_get_session():
+        yield db_session
+    
+    app.dependency_overrides[get_db] = override_get_session
+    
+    with TestClient(app) as test_client:
+        yield test_client
+    
+    app.dependency_overrides.clear()

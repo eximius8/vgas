@@ -94,10 +94,9 @@ def get_job_results(
     """
     deliveries = deliveriescrud.get_deliveries(
         session=session, filters=filters)
-    response = DeliveryListSerializer(
-        items=[DeliveryGetSerializer.model_validate(delivery, from_attributes=True) for delivery in deliveries.get("items", [])],
-        total=deliveries.get("total", 0),
-        limit=filters.limit,
-        offset=filters.offset
-    )
-    return response
+    return {
+        'items': deliveries.get("items", []),
+        'total': deliveries.get("total", 0),
+        'limit': filters.limit,
+        'offset': filters.offset
+    }
