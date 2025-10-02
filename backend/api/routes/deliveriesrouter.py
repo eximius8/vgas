@@ -26,7 +26,7 @@ router = APIRouter(prefix="/deliveries", tags=["deliveries"])
 
 
 @router.post(
-    "/fetch", response_model=JobGetSerializer
+    "/fetch", response_model=JobGetSerializer, status_code=status.HTTP_202_ACCEPTED
 )
 def create_job(*, 
                session: SessionDep, 
@@ -36,15 +36,12 @@ def create_job(*,
     """
     Create new job.
     """
-    job = jobscrud.get_job_by_site_id_date(
-        session=session, site_id=job_in.site_id, for_date=job_in.for_date)
-    if job is None:
-        job = jobscrud.create_job(session=session, job_create=job_in)
-        background_tasks.add_task(process_job, job.id, session)
-    else:
-        response.status_code = status.HTTP_202_ACCEPTED
-    job_response = JobGetSerializer.model_validate(job)    
-    return job_response
+    created, job = jobscrud.get_or_create_job(
+        session=session, job_create=job_in)
+    if created:
+        background_tasks.add_task(process_job, job.id, session)    
+        response.status_code = status.HTTP_201_CREATED
+    return job
 
 
 @router.get(
@@ -56,14 +53,13 @@ def get_job(*, session: SessionDep, job_id: UUID) -> Any:
     """
     job = jobscrud.get_job_by_id(session=session, job_id=job_id)
     if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    job_status_response = JobStatusSerializer.model_validate(job)    
-    return job_status_response
+        raise HTTPException(status_code=404, detail="Job not found")  
+    return job
 
 
 
 @router.get(
-    "/jobs/{job_id}/results", response_model=DeliveryGetSerializer
+    "/jobs/{job_id}/results", response_model=DeliveryListSerializer
 )
 def get_job_results(
         *, 
@@ -76,14 +72,13 @@ def get_job_results(
     """
     deliveries = deliveriescrud.get_deliveries(
         session=session, job_id=job_id, filters=filters)
-    response = DeliveryListSerializer(
-        job_id=job_id,
-        items=[DeliveryGetSerializer.model_validate(delivery, from_attributes=True) for delivery in deliveries.get("items", [])],
-        total=deliveries.get("total", 0),
-        limit=filters.limit,
-        offset=filters.offset
-    )
-    return response
+    return {
+        'job_id': job_id,
+        'items': deliveries.get("items", []),
+        'total': deliveries.get("total", 0),
+        'limit': filters.limit,
+        'offset': filters.offset
+    }
 
 
 @router.get(

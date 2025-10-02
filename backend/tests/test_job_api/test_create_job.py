@@ -16,7 +16,7 @@ from backend.main import app
 async def test_create_job(job_json):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         response = await ac.post("/backend/deliveries/fetch", json=job_json)
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert 'jobId' in data
     assert 'status' in data
@@ -55,6 +55,6 @@ async def test_create_job_with_same_data_failed_finished(job_json, session: Sess
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         response = await ac.post("/backend/deliveries/fetch", json=job_json)        
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data['jobId'] != str(job.id)
