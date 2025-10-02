@@ -1,15 +1,18 @@
 import enum
 
+
 class DeliveryStatusEnum(str, enum.Enum):
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
     PENDING = "pending"
+
 
 class JobStatusEnum(str, enum.Enum):
     CREATED = "created"
     PROCESSING = "processing"
     FINISHED = "finished"
     FAILED = "failed"
+
 
 class SortByItemsEnum(str, enum.Enum):
     DELIVERED_AT_ASC = "delivered_at_asc"

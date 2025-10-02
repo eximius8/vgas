@@ -1,4 +1,3 @@
-import os
 import logging
 
 import httpx
@@ -10,7 +9,6 @@ from backend.settings import LOGISTICS_A_URL, LOGISTICS_B_URL
 logger = logging.getLogger("uvicorn.error")
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with httpx.AsyncClient(timeout=5.0) as client:
@@ -20,7 +18,9 @@ async def lifespan(app: FastAPI):
             if r.status_code == 200:
                 logger.info(f"Partner A reachable at {LOGISTICS_A_URL}")
             else:
-                logger.error(f"Partner A returned status {r.status_code} at {LOGISTICS_A_URL}")
+                logger.error(
+                    f"Partner A returned status {r.status_code} at {LOGISTICS_A_URL}"
+                )
         except Exception as e:
             logger.error(f"Failed to reach Partner A at {LOGISTICS_A_URL}: {e}")
 
@@ -30,7 +30,9 @@ async def lifespan(app: FastAPI):
             if r.status_code == 200:
                 logger.info(f"Partner B reachable at {LOGISTICS_B_URL}")
             else:
-                logger.error(f"Partner B returned status {r.status_code} at {LOGISTICS_B_URL}")
+                logger.error(
+                    f"Partner B returned status {r.status_code} at {LOGISTICS_B_URL}"
+                )
         except Exception as e:
             logger.error(f"Failed to reach Partner B at {LOGISTICS_B_URL}: {e}")
 
@@ -39,9 +41,12 @@ async def lifespan(app: FastAPI):
     logger.info("Application shutdown complete.")
 
 
-app = FastAPI(title="VESTIGAS Backend Challenge", lifespan=lifespan, root_path="/backend")
+app = FastAPI(
+    title="VESTIGAS Backend Challenge", lifespan=lifespan, root_path="/backend"
+)
 
 app.include_router(deliveriesrouter.router)
+
 
 @app.get("/")
 def root():

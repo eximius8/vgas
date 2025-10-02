@@ -27,9 +27,9 @@ def db_engine():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    
-    SQLModel.metadata.create_all(engine)    
-    yield engine    
+
+    SQLModel.metadata.create_all(engine)
+    yield engine
     SQLModel.metadata.drop_all(engine)
     engine.dispose()
 
@@ -44,12 +44,13 @@ def db_session(db_engine):
 @pytest.fixture(scope="function")
 def client(db_session):
     """Create a test client with overridden database dependency"""
+
     def override_get_session():
         yield db_session
-    
+
     app.dependency_overrides[get_db] = override_get_session
-    
+
     with TestClient(app) as test_client:
         yield test_client
-    
+
     app.dependency_overrides.clear()

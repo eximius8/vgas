@@ -18,8 +18,9 @@ def job_created() -> Job:
         status=JobStatusEnum.CREATED,
         created_at=datetime.now(),
         updated_at=datetime.now(),
-        stats={}
+        stats={},
     )
+
 
 @pytest.fixture
 def job_processing() -> Job:
@@ -31,8 +32,9 @@ def job_processing() -> Job:
         status=JobStatusEnum.PROCESSING,
         created_at=datetime.now(),
         updated_at=datetime.now(),
-        stats={}
+        stats={},
     )
+
 
 @pytest.fixture
 def job_finished() -> Job:
@@ -45,11 +47,12 @@ def job_finished() -> Job:
         created_at=datetime.now(),
         updated_at=datetime.now(),
         stats={
-            "partnerA": { "fetched": 10, "transformed": 9, "errors": 1 },
-            "partnerB": { "fetched": 7, "transformed": 7, "errors": 0 },
-            "stored": 16
-        }
+            "partnerA": {"fetched": 10, "transformed": 9, "errors": 1},
+            "partnerB": {"fetched": 7, "transformed": 7, "errors": 0},
+            "stored": 16,
+        },
     )
+
 
 @pytest.fixture
 def job_failed() -> Job:
@@ -62,23 +65,22 @@ def job_failed() -> Job:
         created_at=datetime.now(),
         updated_at=datetime.now(),
         stats={
-            "partnerA": 'Failed with error: ABC',
-            "partnerB": { "fetched": 7, "transformed": 0, "errors": 7 },
-            "stored": 0
-        }
+            "partnerA": "Failed with error: ABC",
+            "partnerB": {"fetched": 7, "transformed": 0, "errors": 7},
+            "stored": 0,
+        },
     )
 
 
 @pytest.fixture
-def sample_database_data(db_session: Session, job_created, 
-                         job_processing, job_finished, job_failed):
-    db_session.add_all([job_created, job_processing, 
-                        job_finished, job_failed])
+def sample_database_data(
+    db_session: Session, job_created, job_processing, job_finished, job_failed
+):
+    db_session.add_all([job_created, job_processing, job_finished, job_failed])
     db_session.commit()
     return {
-        'created': job_created,
-        'processing': job_processing, 
-        'finished': job_finished,
-        'failed': job_failed
+        "created": job_created,
+        "processing": job_processing,
+        "finished": job_finished,
+        "failed": job_failed,
     }
-

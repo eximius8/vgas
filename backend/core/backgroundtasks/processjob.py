@@ -1,4 +1,3 @@
-
 import uuid
 from backend.enums import JobStatusEnum
 from backend.deps import SessionDep
@@ -15,18 +14,23 @@ async def process_job(job_id: uuid.UUID, session: SessionDep) -> None:
     Here, we just log the action and return True to indicate success.
     """
     jobscrud.update_job_status(
-        session=session, job_id=job_id, status=JobStatusEnum.PROCESSING)
+        session=session, job_id=job_id, status=JobStatusEnum.PROCESSING
+    )
 
     partner_a_results, partner_b_results = await fetch_partners()
 
-    stats = await process_deliveries(partner_a_results, partner_b_results, session, job_id)
-    jobscrud.update_job_stats(
-        session=session, job_id=job_id, stats=stats)
-    if stats.get('partnerA', {}).get('error') is not None \
-        and stats.get('partnerB', {}).get('error') is not None:
+    stats = await process_deliveries(
+        partner_a_results, partner_b_results, session, job_id
+    )
+    jobscrud.update_job_stats(session=session, job_id=job_id, stats=stats)
+    if (
+        stats.get("partnerA", {}).get("error") is not None
+        and stats.get("partnerB", {}).get("error") is not None
+    ):
         jobscrud.update_job_status(
-            session=session, job_id=job_id, status=JobStatusEnum.FAILED)
+            session=session, job_id=job_id, status=JobStatusEnum.FAILED
+        )
     else:
         jobscrud.update_job_status(
-            session=session, job_id=job_id, status=JobStatusEnum.FINISHED)
-
+            session=session, job_id=job_id, status=JobStatusEnum.FINISHED
+        )

@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field
 
 
 class DeliveryFilter(BaseModel):
-
     limit: int = 100
     offset: int = 0
     supplier: str | None = None
@@ -13,4 +12,6 @@ class DeliveryFilter(BaseModel):
     from_date: datetime | None = Field(None, alias="from")
     to_date: datetime | None = Field(None, alias="to")
     site_id: str | None = Field(None, alias="siteId")
-    sort_by: SortByItemsEnum = Field(SortByItemsEnum.DELIVERY_SCORE_DESC, alias="sortBy")
+    sort_by: SortByItemsEnum = Field(
+        SortByItemsEnum.DELIVERY_SCORE_DESC, alias="sortBy"
+    )

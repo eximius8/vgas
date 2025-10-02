@@ -6,11 +6,10 @@ from .job import (
 from .delivery import DeliveryGetSerializer, DeliveryListSerializer
 
 
-
 __all__ = [
     "JobCreateSerializer",
     "JobGetSerializer",
     "JobStatusSerializer",
     "DeliveryGetSerializer",
-    "DeliveryListSerializer",   
+    "DeliveryListSerializer",
 ]

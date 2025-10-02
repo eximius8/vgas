@@ -1,13 +1,12 @@
 from datetime import datetime
-from backend.enums import DeliveryStatusEnum
 from pydantic import BaseModel, Field, computed_field
-
+from backend.enums import DeliveryStatusEnum
 
 
 class DeliveryPartnerASerializer(BaseModel):
-    deliveryId: str = Field(serialization_alias='ext_id')
+    deliveryId: str = Field(serialization_alias="ext_id")
     supplier: str
-    timestamp: datetime = Field(serialization_alias='delivered_at')
+    timestamp: datetime = Field(serialization_alias="delivered_at")
     status: DeliveryStatusEnum
     signedBy: str | None = Field(default=None, exclude=True)
 
@@ -22,20 +21,15 @@ class DeliveryPartnerASerializer(BaseModel):
         return self.signedBy is not None
 
 
-from datetime import datetime
-from backend.enums import DeliveryStatusEnum
-from pydantic import BaseModel, Field, computed_field
-
-
 class ReceiverInfo(BaseModel):
     name: str
     signed: bool
 
 
 class DeliveryPartnerBSerializer(BaseModel):
-    id: str = Field(serialization_alias='ext_id')
-    provider: str = Field(serialization_alias='supplier')
-    deliveredAt: datetime = Field(serialization_alias='delivered_at')
+    id: str = Field(serialization_alias="ext_id")
+    provider: str = Field(serialization_alias="supplier")
+    deliveredAt: datetime = Field(serialization_alias="delivered_at")
     statusCode: str = Field(exclude=True)
     receiver: ReceiverInfo | None = Field(default=None, exclude=True)
 

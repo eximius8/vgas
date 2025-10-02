@@ -1,18 +1,13 @@
-
 """Model for jobs"""
-
 
 import uuid
 
 from datetime import datetime, date
 
-from datetime import datetime
 from pydantic import BaseModel, Field
 
 
-
 from backend.enums import JobStatusEnum
-
 
 
 class JobCreateSerializer(BaseModel):
