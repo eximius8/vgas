@@ -1,8 +1,6 @@
 from backend.core.backgroundtasks.serializers import DeliveryPartnerASerializer, DeliveryPartnerBSerializer
 
 
-
-
 def test_partner_a_normalization(partner_a_correct_response):
     for item in partner_a_correct_response:
         delivery = DeliveryPartnerASerializer(**item)

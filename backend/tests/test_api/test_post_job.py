@@ -1,4 +1,5 @@
 
+
 def test_create_job(client, job_json):
     response = client.post("/backend/deliveries/fetch", json=job_json)
     assert response.status_code == 201
@@ -8,50 +9,43 @@ def test_create_job(client, job_json):
     assert data['status'] == "created"
 
 
-def test_not_create_created_jon(client, sample_database_data, job_created):
-    
-    response = client.post("/backend/deliveries/fetch", json={
-        "siteId": job_created.site_id,
-        "date": str(job_created.for_date)} )
+def test_not_create_created_job(client, sample_database_data):
+    job = sample_database_data.get('created')
+    response = client.post(
+        "/backend/deliveries/fetch", 
+        json={
+            "siteId": job.site_id,
+            "date": str(job.for_date)
+            })
     assert response.status_code == 202
     data = response.json()
-    assert data['jobId'] == str(job_created.id)
+    assert data['jobId'] == str(job.id)
 
 
-def test_not_create_processing_jon(client, sample_database_data, job_processing):
-    
+def test_not_create_processing_job(client, sample_database_data):
+    job = sample_database_data.get('processing')
     response = client.post("/backend/deliveries/fetch", json={
-        "siteId": job_processing.site_id,
-        "date": str(job_processing.for_date)} )
+        "siteId": job.site_id,
+        "date": str(job.for_date)} )
     assert response.status_code == 202
     data = response.json()
-    assert data['jobId'] == str(job_processing.id)
+    assert data['jobId'] == str(job.id)
 
 
-def test_not_create_created_jon(client, sample_database_data, job_created):
-    
+def test_create_failed_job(client, sample_database_data,):
+    job = sample_database_data.get('failed')
     response = client.post("/backend/deliveries/fetch", json={
-        "siteId": job_created.site_id,
-        "date": str(job_created.for_date)} )
+        "siteId": job.site_id,
+        "date": str(job.for_date)} )
     assert response.status_code == 202
     data = response.json()
-    assert data['jobId'] == str(job_created.id)
+    assert data['jobId'] != str(job.id)
 
-
-def test_create_failed_jon(client, sample_database_data, job_failed):
-    
+def test_create_finished_jon(client, sample_database_data):
+    job = sample_database_data.get('finished')
     response = client.post("/backend/deliveries/fetch", json={
-        "siteId": job_failed.site_id,
-        "date": str(job_failed.for_date)} )
+        "siteId": job.site_id,
+        "date": str(job.for_date)} )
     assert response.status_code == 202
     data = response.json()
-    assert data['jobId'] != str(job_failed.id)
-
-def test_create_finished_jon(client, sample_database_data, job_finished):
-    
-    response = client.post("/backend/deliveries/fetch", json={
-        "siteId": job_finished.site_id,
-        "date": str(job_finished.for_date)} )
-    assert response.status_code == 202
-    data = response.json()
-    assert data['jobId'] != str(job_finished.id)
+    assert data['jobId'] != str(job.id)

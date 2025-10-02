@@ -72,7 +72,13 @@ def job_failed() -> Job:
 @pytest.fixture
 def sample_database_data(db_session: Session, job_created, 
                          job_processing, job_finished, job_failed):
-    db_session.add_all([ job_created, job_processing, 
+    db_session.add_all([job_created, job_processing, 
                         job_finished, job_failed])
     db_session.commit()
+    return {
+        'created': job_created,
+        'processing': job_processing, 
+        'finished': job_finished,
+        'failed': job_failed
+    }
 

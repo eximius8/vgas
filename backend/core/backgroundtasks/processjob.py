@@ -22,21 +22,11 @@ async def process_job(job_id: uuid.UUID, session: SessionDep) -> None:
     stats = await process_deliveries(partner_a_results, partner_b_results, session, job_id)
     jobscrud.update_job_stats(
         session=session, job_id=job_id, stats=stats)
-    if stats.get('stored', 0) > 0:
-        jobscrud.update_job_status(
-            session=session, job_id=job_id, status=JobStatusEnum.FINISHED)
-    else:
+    if stats.get('partnerA', {}).get('error') is not None \
+        and stats.get('partnerB', {}).get('error') is not None:
         jobscrud.update_job_status(
             session=session, job_id=job_id, status=JobStatusEnum.FAILED)
-
-
-
-
-
-
-
-
-
-
-
+    else:
+        jobscrud.update_job_status(
+            session=session, job_id=job_id, status=JobStatusEnum.FINISHED)
 

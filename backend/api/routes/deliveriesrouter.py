@@ -8,8 +8,7 @@ from backend.deps import SessionDep
 
 from backend.api.schemas import (JobGetSerializer, 
                                  JobCreateSerializer, 
-                                 JobStatusSerializer,
-                                 DeliveryGetSerializer,
+                                 JobStatusSerializer,                                 
                                  DeliveryListSerializer)
 
 from backend.api.filters import DeliveryFilter

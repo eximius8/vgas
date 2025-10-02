@@ -1,6 +1,10 @@
 import os
 import pytest
 
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["LOGISTICS_A_URL"] = "http://testserver-a/api/logistics-a"
+os.environ["LOGISTICS_B_URL"] = "http://testserver-b/api/logistics-b"
+
 from fastapi.testclient import TestClient
 
 from sqlmodel import Session, SQLModel, create_engine
@@ -14,22 +18,12 @@ pytest_plugins = [
     "fixtures.sample_data",
 ]
 
-TEST_DATABASE_URL = "sqlite:///:memory:"
-
-
-@pytest.fixture(scope="session", autouse=True)
-def set_test_env():
-    """Set test environment variables"""
-    os.environ["DATABASE_URL"] = TEST_DATABASE_URL
-    os.environ["LOGISTICS_A_URL"] = "http://testserver-a/api/logistics-a"
-    os.environ["LOGISTICS_B_URL"] = "http://testserver-b/api/logistics-b"
-
 
 @pytest.fixture(scope="function")
 def db_engine():
     """Create a test database engine"""
     engine = create_engine(
-        TEST_DATABASE_URL,
+        os.getenv("DATABASE_URL"),
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
