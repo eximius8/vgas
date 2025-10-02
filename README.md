@@ -110,20 +110,27 @@ Key Feature: hybrid_property allows:
 API Examples
 1. Create Fetch Job
 Request:
-bashcurl -X POST http://localhost:8000/backend/deliveries/fetch \
+```bash
+curl -X POST http://localhost:8000/backend/deliveries/fetch \
   -H "Content-Type: application/json" \
   -d '{"siteId":"munich-schwabing-1","date":"2025-08-01"}'
+```
 Response (201 Created):
-json{
+```json
+{
   "jobId": "c9b0d4d1-5f6a-4c88-9a28-1d88d1b4a3f7",
   "status": "created"
 }
+```
 
 2. Check Job Status
 Request:
-bashcurl http://localhost:8000/backend/deliveries/jobs/c9b0d4d1-5f6a-4c88-9a28-1d88d1b4a3f7
+```bash
+curl http://localhost:8000/backend/deliveries/jobs/c9b0d4d1-5f6a-4c88-9a28-1d88d1b4a3f7
+```
 Response:
-json{
+```json
+{
   "jobId": "c9b0d4d1-5f6a-4c88-9a28-1d88d1b4a3f7",
   "status": "finished",
   "createdAt": "2025-08-01T06:00:00Z",
@@ -139,12 +146,16 @@ json{
   },
   "error": null
 }
+```
 
 3. Get Job Results
 Request:
-bashcurl "http://localhost:8000/backend/deliveries/jobs/c9b0d4d1-5f6a-4c88-9a28-1d88d1b4a3f7/results?limit=10&signed=true&sortBy=delivery_score_desc"
+```bash
+curl "http://localhost:8000/backend/deliveries/jobs/c9b0d4d1-5f6a-4c88-9a28-1d88d1b4a3f7/results?limit=10&signed=true&sortBy=delivery_score_desc"
+```
 Response:
-json{
+```json
+{
   "jobId": "c9b0d4d1-5f6a-4c88-9a28-1d88d1b4a3f7",
   "items": [
     {
@@ -172,22 +183,26 @@ json{
   "limit": 10,
   "offset": 0
 }
+```
 Available Query Parameters:
 
-limit, offset - Pagination
-supplier - Filter by supplier
-status - delivered, cancelled, pending
-signed - true/false
-from, to - Date range
-siteId - Site ID
-sortBy - delivery_score_desc, delivered_at_asc, etc.
+- limit, offset - Pagination
+- supplier - Filter by supplier
+- status - delivered, cancelled, pending
+- signed - true/false
+- from, to - Date range
+- siteId - Site ID
+- sortBy - delivery_score_desc, delivered_at_asc, etc.
 
 
 4. Query All Deliveries
 Request:
-bashcurl "http://localhost:8000/backend/deliveries?status=delivered&limit=5"
+```bash
+curl "http://localhost:8000/backend/deliveries?status=delivered&limit=5"
+```
 Response:
-json{
+```json
+{
   "items": [
     {
       "id": "DEL-001-A",
@@ -204,6 +219,7 @@ json{
   "limit": 5,
   "offset": 0
 }
+```
 
 # Resilience Notes
 ## Timeouts
